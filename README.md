@@ -34,8 +34,17 @@ Follow these steps carefully. This is a one-time setup.
     `https://your-username.github.io/PGPensionCalculator`
     (Remember to replace `your-username` with your actual GitHub username).
 
-You can now share this link with anyone. It is secure, and no one can edit your name or the calculator's code.
+You can now share this link with anyone.
 
 ---
+## How to Update the Calculator
 
-If you need any updates to the calculator in the future, just ask me. I will provide you with an updated `index.html` file, and you will just need to re-upload it to your repository.
+When you need a change, I will provide you with an updated `index.html` file. Here’s how to update the live calculator:
+
+1.  Go to your repository on GitHub: `https://github.com/your-username/PGPensionCalculator`
+2.  Above the list of files, on the right, click the **"Add file"** button and then select **"Upload files"**.
+3.  This will take you to the upload page. You can now drag the new `index.html` file I gave you directly into this window.
+4.  It will replace the old file.
+5.  Click the **"Commit changes"** button.
+
+Your calculator will be updated at the same link within a minute or two.

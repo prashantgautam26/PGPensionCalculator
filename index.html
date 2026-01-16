@@ -88,6 +88,18 @@
             font-weight: 700;
             color: #2980b9;
         }
+        #instructions-toggle {
+            background-color: #777;
+            margin-bottom: 15px;
+            grid-column: auto;
+        }
+        #instructions {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
         @media (max-width: 768px) {
             .form-grid {
                 grid-template-columns: 1fr; /* Stack the form columns */
@@ -114,6 +126,20 @@
     </div>
     <h1>Pension Calculator</h1>
     <p style="text-align:center; margin-top:-15px; margin-bottom: 25px; font-size: 0.9em; color: #777;">For Government Employees</p>
+
+    <button type="button" id="instructions-toggle">Show/Hide Instructions</button>
+    <div id="instructions" style="display:none;">
+        <h4>How to Use:</h4>
+        <ol>
+            <li>Enter your Date of Birth. The Date of Retirement will be auto-calculated to your 60th birthday.</li>
+            <li>Enter your Date of Joining service.</li>
+            <li>You can manually adjust the Date of Retirement if needed. The DA Rate will be auto-calculated based on this date.</li>
+            <li>Enter your Last Basic Pay at the time of retirement.</li>
+            <li>The DA Rate at Retirement will be estimated based on the date. You can override it if you know the exact rate.</li>
+            <li>The Commutation Percentage is set to the maximum of 40% by default, but you can change it.</li>
+            <li>Click "Calculate Pension" to see the results.</li>
+        </ol>
+    </div>
 
     <form id="pensionForm">
         <div class="form-grid">
@@ -151,6 +177,15 @@
 </div>
 
 <script>
+    document.getElementById('instructions-toggle').addEventListener('click', function() {
+        var instructionsDiv = document.getElementById('instructions');
+        if (instructionsDiv.style.display === 'none') {
+            instructionsDiv.style.display = 'block';
+        } else {
+            instructionsDiv.style.display = 'none';
+        }
+    });
+
     // Correct commutation table as per CCS (Commutation of Pension) Rules.
     const commutationTable = {
         20: 9.187, 21: 9.186, 22: 9.185, 23: 9.184, 24: 9.183, 25: 9.182,
@@ -339,5 +374,6 @@
 </script>
 
 <p style="text-align:center; font-weight: bold; color: #3498db; margin-top: 30px;">Created by:- Prashant Gautam, Assistant Accounts Officer, O/o Accountant General (A & E) Uttrakhand</p>
+<p style="text-align:center; font-size: 0.9em; color: #555; margin-top: 15px;">For more information, email us on: <a href="mailto:prashantiice@gmail.com">prashantiice@gmail.com</a></p>
 </body>
 </html>
