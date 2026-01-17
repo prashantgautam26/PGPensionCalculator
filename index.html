@@ -217,8 +217,8 @@
         <h4>First Payout Summary</h4>
         <div class="payout-item"><span>Gratuity:</span> <span id="payoutGratuity"></span></div>
         <div class="payout-item"><span>Commutation:</span> <span id="payoutCommutation"></span></div>
-        <div class="payout-item">
-            <span>First Month Pension:</span> <span id="payoutFirstPension"></span>
+        <div class="payout-item" style="display: none;">
+            <span>First Reduced Pension:</span> <span id="payoutFirstPension"></span>
         </div>
         <div class="payout-item arrear-calc">
             <label for="paymentDate">Payment Date:</label>
@@ -229,7 +229,7 @@
              <div class="payout-item"><span style="color: #c0392b;">DA Arrear:</span> <span id="daArrear"></span></div>
         </div>
         <hr>
-        <div class="payout-item total"><span>Grand Total:</span> <span id="payoutTotal"></span></div>
+        <div class="payout-item total"><span>Grand Total Payout:</span> <span id="payoutTotal"></span></div>
     </div>
 </div>
 
@@ -287,7 +287,6 @@
         const basicPayInput = document.getElementById('basicPay');
         const commPercentageInput = document.getElementById('commutationPercentage');
 
-        // Gracefully exit if form is not fully populated
         if (isNaN(dob.getTime()) || isNaN(doj.getTime()) || isNaN(dor.getTime()) || !basicPayInput.value || !commPercentageInput.value) {
             document.getElementById('results').style.display = 'none';
             document.getElementById('payoutBox').style.display = 'none';
@@ -362,34 +361,15 @@
         calculateArrears();
     }
 
-    function updatePayoutBox(arrears = { pension: 0, da: 0 }, paymentDate = null) {
-        const { reducedMonthlyPension, commutationAmount, retirementGratuity, dor } = pensionData;
-        if (reducedMonthlyPension === undefined) return;
+    function updatePayoutBox(arrears = { pension: 0, da: 0 }) {
+        const { commutationAmount, retirementGratuity } = pensionData;
+        if (retirementGratuity === undefined) return;
 
         const formatInr = (num) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num);
-        
-        let firstMonthPension;
-        let firstMonthDate = paymentDate ? new Date(paymentDate.getFullYear(), paymentDate.getMonth(), 1) : new Date(dor.getFullYear(), dor.getMonth() + 1, 1);
-        
-        // The first pension paid *after* all arrears are cleared is the reduced pension.
-        // It's for the month of payment, paid on the 1st of the next month.
-        const firstReducedPensionMonth = paymentDate ? new Date(paymentDate.getFullYear(), paymentDate.getMonth(), 1) : new Date(dor.getFullYear(), dor.getMonth() + 1, 1);
-        const firstMonthDaRate = getDaRateForDate(firstReducedPensionMonth);
-        firstMonthPension = reducedMonthlyPension * (1 + firstMonthDaRate / 100);
-
 
         document.getElementById('payoutGratuity').textContent = formatInr(retirementGratuity);
         document.getElementById('payoutCommutation').textContent = formatInr(commutationAmount);
         
-        // This item's meaning changes based on arrears.
-        const firstPensionLabel = document.querySelector('#payoutFirstPension').previousElementSibling;
-        if (arrears.pension > 0) {
-            firstPensionLabel.textContent = 'First Reduced Pension:';
-        } else {
-            firstPensionLabel.textContent = 'First Month Pension:';
-        }
-        document.getElementById('payoutFirstPension').textContent = formatInr(Math.round(firstMonthPension));
-
         const grandTotal = retirementGratuity + commutationAmount + arrears.pension + arrears.da;
         document.getElementById('payoutTotal').textContent = formatInr(Math.round(grandTotal));
         
@@ -398,43 +378,63 @@
 
     function calculateArrears() {
         const paymentDateInput = document.getElementById('paymentDate');
-        const paymentDate = new Date(paymentDateInput.value);
+        const dateValue = paymentDateInput.value;
         const { dor, finalMonthlyPension, reducedMonthlyPension } = pensionData;
+        const formatInr = (num) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num);
+        const firstPensionItem = document.getElementById('payoutFirstPension').parentElement;
 
-        if (isNaN(paymentDate.getTime()) || !dor || !paymentDateInput.value) {
+        if (!dateValue || !dor) {
             document.getElementById('arrearsSection').style.display = 'none';
+            firstPensionItem.style.display = 'none';
             if(pensionData.dor) updatePayoutBox();
             return;
         }
 
-        const firstPensionDueDate = new Date(dor.getFullYear(), dor.getMonth() + 1, 1);
-        
-        if (paymentDate < firstPensionDueDate) {
-            document.getElementById('arrearsSection').style.display = 'none';
-            updatePayoutBox();
-            return;
-        }
+        const dateParts = dateValue.split('-');
+        const paymentDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
 
+        const firstArrearMonth = new Date(dor.getFullYear(), dor.getMonth() + 1, 1);
+        
         let totalPensionArrear = 0;
         let totalDaArrear = 0;
-        let monthsCount = 0;
         
-        let loopDate = new Date(firstPensionDueDate);
-        while (loopDate < paymentDate) {
-            monthsCount++;
-            const daRateForMonth = getDaRateForDate(loopDate);
-            totalDaArrear += finalMonthlyPension * (daRateForMonth / 100);
-            loopDate.setMonth(loopDate.getMonth() + 1);
+        if (paymentDate > firstArrearMonth) {
+            let monthsCount = 0;
+            let daArrearFormulaParts = [];
+            
+            const paymentMonthStart = new Date(paymentDate.getFullYear(), paymentDate.getMonth(), 1);
+            let loopDate = new Date(firstArrearMonth);
+
+            while(loopDate < paymentMonthStart) {
+                monthsCount++;
+                const daRateForMonth = getDaRateForDate(loopDate);
+                const daAmountForMonth = finalMonthlyPension * (daRateForMonth / 100);
+                totalDaArrear += daAmountForMonth;
+                daArrearFormulaParts.push(`${formatInr(daAmountForMonth)}[${daRateForMonth}%]`);
+                loopDate.setMonth(loopDate.getMonth() + 1);
+            }
+            
+            totalPensionArrear = finalMonthlyPension * monthsCount;
+
+            const pensionArrearFormula = `(${formatInr(finalMonthlyPension)} × ${monthsCount} mo)`;
+            const daArrearFormula = daArrearFormulaParts.join(' + ');
+
+            document.getElementById('pensionArrear').innerHTML = `${formatInr(Math.round(totalPensionArrear))}<br><small class="formula">${pensionArrearFormula}</small>`;
+            document.getElementById('daArrear').innerHTML = `${formatInr(Math.round(totalDaArrear))}<br><small class="formula">${daArrearFormula}</small>`;
+            document.getElementById('arrearsSection').style.display = 'block';
+            
+            const firstReducedPensionMonth = new Date(paymentDate.getFullYear(), paymentDate.getMonth(), 1);
+            const firstMonthDaRate = getDaRateForDate(firstReducedPensionMonth);
+            const firstMonthPension = reducedMonthlyPension * (1 + firstMonthDaRate / 100);
+            document.getElementById('payoutFirstPension').textContent = formatInr(Math.round(firstMonthPension));
+            firstPensionItem.style.display = 'flex';
+
+        } else {
+            document.getElementById('arrearsSection').style.display = 'none';
+            firstPensionItem.style.display = 'none';
         }
-        
-        totalPensionArrear = finalMonthlyPension * monthsCount;
 
-        const formatInr = (num) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num);
-        document.getElementById('pensionArrear').textContent = formatInr(Math.round(totalPensionArrear));
-        document.getElementById('daArrear').textContent = formatInr(Math.round(totalDaArrear));
-        document.getElementById('arrearsSection').style.display = 'block';
-
-        updatePayoutBox({ pension: totalPensionArrear, da: totalDaArrear }, paymentDate);
+        updatePayoutBox({ pension: totalPensionArrear, da: totalDaArrear });
     }
 </script>
 
