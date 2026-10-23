@@ -40,11 +40,54 @@
             font-weight: 600;
             color: #555;
         }
-        input[type="date"], input[type="number"] {
+        .date-input, input[type="number"] {
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 1rem;
+        }
+        .date-input-wrapper {
+            display: flex;
+            gap: 6px;
+        }
+        .date-input-wrapper .date-input {
+            flex: 1;
+            min-width: 0;
+        }
+        .calendar-picker-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            min-width: 44px;
+            flex: 0 0 44px;
+            padding: 0;
+            color: #2c3e50;
+            background: #f4f4f4;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            grid-column: auto;
+            font-size: 1rem;
+            font-weight: 400;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .calendar-picker-button:hover {
+            background: #e8eef3;
+        }
+        .calendar-picker-button:focus-visible {
+            outline: 2px solid #3498db;
+            outline-offset: 2px;
+        }
+        .native-date-picker {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            opacity: 0;
+            border: 0;
         }
         button {
             grid-column: 1 / -1;
@@ -182,15 +225,33 @@
         <div class="form-grid">
             <div class="form-group">
                 <label for="dob">Date of Birth</label>
-                <input type="date" id="dob" required onchange="autoCalculateDOR(); calculatePension();">
+                <div class="date-input-wrapper">
+                    <input type="text" id="dob" class="date-input" placeholder="DD/MM/YY" maxlength="10" inputmode="numeric" pattern="\d{2}/\d{2}/(?:\d{2}|\d{4})" title="Enter date as DD/MM/YY or DD/MM/YYYY" required onchange="autoCalculateDOR(); calculatePension();">
+                    <button class="calendar-picker-button" type="button" aria-label="Choose date of birth" onclick="openDatePicker('dobPicker')">
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 11h18"></path></svg>
+                    </button>
+                    <input type="date" id="dobPicker" class="native-date-picker" tabindex="-1" aria-hidden="true">
+                </div>
             </div>
             <div class="form-group">
                 <label for="doj">Date of Joining</label>
-                <input type="date" id="doj" required onchange="calculatePension()">
+                <div class="date-input-wrapper">
+                    <input type="text" id="doj" class="date-input" placeholder="DD/MM/YY" maxlength="10" inputmode="numeric" pattern="\d{2}/\d{2}/(?:\d{2}|\d{4})" title="Enter date as DD/MM/YY or DD/MM/YYYY" required onchange="calculatePension()">
+                    <button class="calendar-picker-button" type="button" aria-label="Choose date of joining" onclick="openDatePicker('dojPicker')">
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 11h18"></path></svg>
+                    </button>
+                    <input type="date" id="dojPicker" class="native-date-picker" tabindex="-1" aria-hidden="true">
+                </div>
             </div>
             <div class="form-group">
                 <label for="dor">Date of Retirement</label>
-                <input type="date" id="dor" required onchange="autoCalculateDARate(); calculatePension();">
+                <div class="date-input-wrapper">
+                    <input type="text" id="dor" class="date-input" placeholder="DD/MM/YY" maxlength="10" inputmode="numeric" pattern="\d{2}/\d{2}/(?:\d{2}|\d{4})" title="Enter date as DD/MM/YY or DD/MM/YYYY" required onchange="autoCalculateDARate(); calculatePension();">
+                    <button class="calendar-picker-button" type="button" aria-label="Choose retirement date" onclick="openDatePicker('dorPicker')">
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 11h18"></path></svg>
+                    </button>
+                    <input type="date" id="dorPicker" class="native-date-picker" tabindex="-1" aria-hidden="true">
+                </div>
             </div>
             <div class="form-group">
                 <label for="basicPay">Last Basic Pay (at retirement)</label>
@@ -222,7 +283,13 @@
         </div>
         <div class="payout-item arrear-calc">
             <label for="paymentDate">Payment Date:</label>
-            <input type="date" id="paymentDate" onchange="calculateArrears()">
+            <div class="date-input-wrapper">
+                <input type="text" id="paymentDate" class="date-input" placeholder="DD/MM/YY" maxlength="10" inputmode="numeric" pattern="\d{2}/\d{2}/(?:\d{2}|\d{4})" title="Enter date as DD/MM/YY or DD/MM/YYYY" onchange="calculateArrears()">
+                <button class="calendar-picker-button" type="button" aria-label="Choose payment date" onclick="openDatePicker('paymentDatePicker')">
+                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 11h18"></path></svg>
+                </button>
+                <input type="date" id="paymentDatePicker" class="native-date-picker" tabindex="-1" aria-hidden="true">
+            </div>
         </div>
         <div id="arrearsSection" style="display: none;">
              <div class="payout-item"><span style="color: #c0392b;">Pension Arrear:</span> <span id="pensionArrear"></span></div>
@@ -241,21 +308,73 @@
     };
 
     const daRates = [
-        { date: new Date('2025-07-01'), rate: 58 }, { date: new Date('2025-01-01'), rate: 55 },
-        { date: new Date('2024-07-01'), rate: 53 }, { date: new Date('2024-01-01'), rate: 50 },
-        { date: new Date('2023-07-01'), rate: 46 }, { date: new Date('2023-01-01'), rate: 42 },
-        { date: new Date('2022-07-01'), rate: 38 }, { date: new Date('2022-01-01'), rate: 34 },
-        { date: new Date('2021-07-01'), rate: 31 }, { date: new Date('2019-07-01'), rate: 17 },
-        { date: new Date('2019-01-01'), rate: 12 }, { date: new Date('2018-07-01'), rate: 9 },
-        { date: new Date('2018-01-01'), rate: 7 }, { date: new Date('2017-07-01'), rate: 5 },
-        { date: new Date('2017-01-01'), rate: 4 }, { date: new Date('2016-07-01'), rate: 2 },
-        { date: new Date('2016-01-01'), rate: 0 },
+        { date: new Date('2026-01-01'), rate: 60 }, { date: new Date('2025-07-01'), rate: 58 }, 
+        { date: new Date('2025-01-01'), rate: 55 }, { date: new Date('2024-07-01'), rate: 53 }, 
+        { date: new Date('2024-01-01'), rate: 50 }, { date: new Date('2023-07-01'), rate: 46 }, 
+        { date: new Date('2023-01-01'), rate: 42 }, { date: new Date('2022-07-01'), rate: 38 }, 
+        { date: new Date('2022-01-01'), rate: 34 }, { date: new Date('2021-07-01'), rate: 31 }, 
+        { date: new Date('2019-07-01'), rate: 17 }, { date: new Date('2019-01-01'), rate: 12 }, 
+        { date: new Date('2018-07-01'), rate: 9 },  { date: new Date('2018-01-01'), rate: 7 }, 
+        { date: new Date('2017-07-01'), rate: 5 },  { date: new Date('2017-01-01'), rate: 4 }, 
+        { date: new Date('2016-07-01'), rate: 2 },  { date: new Date('2016-01-01'), rate: 0 },
     ];
+
+    function parseDateInput(value) {
+        const match = /^(\d{2})\/(\d{2})\/(\d{2}|\d{4})$/.exec(value.trim());
+        if (!match) return null;
+
+        const day = Number(match[1]);
+        const month = Number(match[2]) - 1;
+        const yearPart = Number(match[3]);
+        const year = match[3].length === 2
+            ? (yearPart <= 49 ? 2000 + yearPart : 1900 + yearPart)
+            : yearPart;
+        const date = new Date(year, month, day);
+        if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) {
+            return null;
+        }
+        return date;
+    }
+
+    function formatDateInput(date) {
+        return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getFullYear()).slice(-2)}`;
+    }
+
+    function formatNativeDate(date) {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function openDatePicker(pickerId) {
+        const datePicker = document.getElementById(pickerId);
+        if (typeof datePicker.showPicker === 'function') {
+            datePicker.showPicker();
+        } else {
+            datePicker.focus();
+            datePicker.click();
+        }
+    }
+
+    function setupDatePicker(inputId, pickerId) {
+        const textInput = document.getElementById(inputId);
+        const datePicker = document.getElementById(pickerId);
+
+        textInput.addEventListener('change', () => {
+            const date = parseDateInput(textInput.value);
+            if (date) datePicker.value = formatNativeDate(date);
+        });
+        datePicker.addEventListener('change', () => {
+            if (!datePicker.value) return;
+            const [year, month, day] = datePicker.value.split('-').map(Number);
+            textInput.value = formatDateInput(new Date(year, month - 1, day));
+            textInput.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+    }
 
     function autoCalculateDOR() {
         const dobInput = document.getElementById('dob');
         if (!dobInput.value) return;
-        const dob = new Date(dobInput.value);
+        const dob = parseDateInput(dobInput.value);
+        if (!dob) return;
         let retirementYear = dob.getFullYear() + 60;
         let retirementMonth = dob.getMonth();
         if (dob.getDate() === 1) {
@@ -263,14 +382,17 @@
             if (retirementMonth < 0) { retirementMonth = 11; retirementYear--; }
         }
         const lastDay = new Date(retirementYear, retirementMonth + 1, 0).getDate();
-        document.getElementById('dor').value = `${retirementYear}-${String(retirementMonth + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+        const retirementDate = new Date(retirementYear, retirementMonth, lastDay);
+        document.getElementById('dor').value = formatDateInput(retirementDate);
+        document.getElementById('dorPicker').value = formatNativeDate(retirementDate);
         autoCalculateDARate();
     }
 
     function autoCalculateDARate() {
         const dorInput = document.getElementById('dor');
         if (!dorInput.value) return;
-        document.getElementById('daRate').value = getDaRateForDate(new Date(dorInput.value));
+        const dor = parseDateInput(dorInput.value);
+        if (dor) document.getElementById('daRate').value = getDaRateForDate(dor);
     }
 
     function getDaRateForDate(date) {
@@ -281,13 +403,13 @@
     }
 
     function calculatePension() {
-        const dob = new Date(document.getElementById('dob').value);
-        const doj = new Date(document.getElementById('doj').value);
-        const dor = new Date(document.getElementById('dor').value);
+        const dob = parseDateInput(document.getElementById('dob').value);
+        const doj = parseDateInput(document.getElementById('doj').value);
+        const dor = parseDateInput(document.getElementById('dor').value);
         const basicPayInput = document.getElementById('basicPay');
         const commPercentageInput = document.getElementById('commutationPercentage');
 
-        if (isNaN(dob.getTime()) || isNaN(doj.getTime()) || isNaN(dor.getTime()) || !basicPayInput.value || !commPercentageInput.value) {
+        if (!dob || !doj || !dor || !basicPayInput.value || !commPercentageInput.value) {
             document.getElementById('results').style.display = 'none';
             document.getElementById('payoutBox').style.display = 'none';
             return;
@@ -390,8 +512,13 @@
             return;
         }
 
-        const dateParts = dateValue.split('-');
-        const paymentDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+        const paymentDate = parseDateInput(dateValue);
+        if (!paymentDate) {
+            document.getElementById('arrearsSection').style.display = 'none';
+            firstPensionItem.style.display = 'none';
+            updatePayoutBox();
+            return;
+        }
 
         const firstArrearMonth = new Date(dor.getFullYear(), dor.getMonth() + 1, 1);
         
@@ -436,6 +563,11 @@
 
         updatePayoutBox({ pension: totalPensionArrear, da: totalDaArrear });
     }
+
+    setupDatePicker('dob', 'dobPicker');
+    setupDatePicker('doj', 'dojPicker');
+    setupDatePicker('dor', 'dorPicker');
+    setupDatePicker('paymentDate', 'paymentDatePicker');
 </script>
 
 <p style="text-align:center; font-weight: bold; color: #3498db; margin-top: 30px;">Created by:- Prashant Gautam, Assistant Accounts Officer, O/o Accountant General (A & E) Uttrakhand</p>
